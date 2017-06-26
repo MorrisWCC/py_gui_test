@@ -1,8 +1,6 @@
 import tkinter as tk
 
 
-
-
 def center(toplevel):
     toplevel.update_idletasks()
     w = toplevel.winfo_screenwidth()
