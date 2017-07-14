@@ -1,13 +1,17 @@
 import tkinter as tk
 import menubar_function as mf
 import sys
+import random
+
+
 class Gui:
     
     def __init__(self):
         self.msg_len = 0
         self.win=tk.Tk()
         self.message = tk.StringVar()
-        self.message.set('Testt')
+        self.message.set('')
+        self.vocabularies = self._loadfile()
         self._SetParameters(self.win)
 
     def _SetParameters(self,win):
@@ -70,7 +74,17 @@ class Gui:
     
     
     def _change_definition(self):
-        self.message.set("La")
+        index = random.randint(0,(self.msg_len-1))
+        self.message.set(self.vocabularies[index][1])
+    
+    def _loadfile(self):
+        with open('gre_word_2.txt') as f:
+            rtn_data =[]
+            for line in f:
+                split_data = line.split('\t')
+                rtn_data.append(split_data)
+                self.msg_len += 1
+        return rtn_data
         
     def _exit(self):
         sys.exit(0)
