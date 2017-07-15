@@ -6,15 +6,19 @@ import random
 class Gui:
     
     def __init__(self):
+        self.start_flag = False
         self.msg_len = 0
         self.win=tk.Tk()
         self.message = tk.StringVar()
         self.message.set('')
         self.vocabularies = []
-        self.answer = ''
+        self.correct_answer = tk.StringVar()
+        self.correct_answer.set('')
+        self.user_answer = tk.StringVar()
+        self.user_answer.set('')
+        self.hint_variable = tk.StringVar()
+        self.hint_variable.set('Hint : ')
         self._SetParameters(self.win)
-        self.correct_text = tk.Text(self.win)
-        self.incorrect_text = tk.Text(self.win)
 
     def _SetParameters(self,win):
         #size title
@@ -23,7 +27,7 @@ class Gui:
         # set size 
         win.minsize(1000,450)
         win.maxsize(1400,850)
-        win.geometry("1000x450")
+        win.geometry("1250x450")
         self.center(win)
         #icon
         win.iconbitmap('icon.ico')
@@ -41,12 +45,15 @@ class Gui:
         word_def = tk.Label(win , textvariable = self.message , font = 'Courier 20')
         word_def.place( x = 220 ,y = 110 )
 
-        correct_label = tk.Label (win , text = 'Correct' , font = 'Courier 22 bold' , bg = 'green')
+        correct_label = tk.Label (win , text = 'Your Answers' , font = 'Courier 18 bold' )
         correct_label.place( x = 100 , y = 190)
 
-        incorrect_label = tk.Label (win , text = 'Incorrect' , font = 'Courier 22 bold', bg = 'red')
+        incorrect_label = tk.Label (win , text = 'Correct Answers' , font = 'Courier 18 bold')
         incorrect_label.place( x = 480 , y = 190 )
-
+        
+        hint_label = tk.Label (win , textvariable = self.hint_variable , font = 'Courier 18 bold')
+        hint_label.place(x = 480,y = 70)
+        
         #menu
 
         #entry 
@@ -68,27 +75,48 @@ class Gui:
 
         #show correctness
         
-        self.correct_text = tk.Text(win , fg = 'green' , width = '40' , height = '9' , font = '16')
-        self.correct_text.place( x = 30 , y = 240)
+        self.show_user_answer = tk.Label(win , width = '40' , height = '9' , font = '16' , textvariable = self.user_answer)
+        self.show_user_answer.place( x = 30 , y = 240)
 
-        self.incorrect_text = tk.Text(win , fg = 'red' , width = '40' , height = '9' , font = '16')
-        self.incorrect_text.place ( x = 410 , y = 240)
+        self.show_correct_answer = tk.Label(win , fg = 'green' , width = '40' , height = '9' , font = '16' , textvariable = self.correct_answer)
+        self.show_correct_answer.place ( x = 410 , y = 240)
     
+    def _get_new_win(self):
+        tmp_win = tk.Tk()
+        tmp_win.geometry("1000x200")
+        self.center(tmp_win)
+        return tmp_win
+        
     def _get_user_answer(self,eff,input_entry):
-        user_answer = input_entry.get()
-        if(user_answer == self.answer):
-            print('y')
-            self.correct_text.insert(tk.INSERT,user_answer)
+        if(self.start_flag == False):
+            new_win = self._get_new_win()
+            start_label = tk.Label (new_win, text = "You haven't load files yet" , font = 'Courier 35 bold' ).pack()           
+     
+        if(self.answer == input_entry.get()):
+            print('hi')
+            self.show_user_answer['fg'] = 'green'
         else:
-            print('n')
-            self.incorrect_text.insert(tk.INSERT,user_answer)
+            self.show_user_answer['fg'] = 'red'
+        
+        self.correct_answer.set(self.answer)
+        self.user_answer.set(input_entry.get())
+        input_entry.delete(0,'end')
+        self._change_definition()
+
         
     def _change_definition(self):
+        
+        if(self.start_flag == False):
+            new_win = self._get_new_win()
+            start_label = tk.Label (new_win, text = "You haven't load files yet" , font = 'Courier 35 bold' ).pack()
+
         index = random.randint(0,(self.msg_len-1))
         self.message.set(self.vocabularies[index][1])
         self.answer = self.vocabularies[index][0]
+        self.hint_variable.set('Hint : '+self.answer[0:2])
     
     def _loadfile(self):
+        self.start_flag = True
         with open('gre_word_2.txt') as f:
             for line in f:
                 split_data = line.split('\t')
