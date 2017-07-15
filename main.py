@@ -3,7 +3,6 @@ import menubar_function as mf
 import sys
 import random
 
-
 class Gui:
     
     def __init__(self):
@@ -11,8 +10,11 @@ class Gui:
         self.win=tk.Tk()
         self.message = tk.StringVar()
         self.message.set('')
-        self.vocabularies = self._loadfile()
+        self.vocabularies = []
+        self.answer = ''
         self._SetParameters(self.win)
+        self.correct_text = tk.Text(self.win)
+        self.incorrect_text = tk.Text(self.win)
 
     def _SetParameters(self,win):
         #size title
@@ -48,13 +50,14 @@ class Gui:
         #menu
 
         #entry 
-
-        input_entry  = tk.Entry(win, font = "28")
+        input_entry  = tk.Entry(win, font = "28" )
         input_entry.place(x = 170 , y = 80)
+        input_entry.focus()
+        self.win.bind('<Return>',lambda eff:self._get_user_answer(eff,input_entry))
 
         #button
 
-        btn = tk.Button(win, text = "Start Test", command = mf.donothing(),font = "bold" , width = "10" )
+        btn = tk.Button(win, text = "Start Test", command = self._loadfile,font = "bold" , width = "10" )
         btn.place(x = 10,y = 0)
 
         next_btn = tk.Button(win, text = "Next", command = self._change_definition, font = "bold" , width = "4" , height = "1")
@@ -64,28 +67,35 @@ class Gui:
         exit_btn.place( x = 900 , y = 380)
 
         #show correctness
+        
+        self.correct_text = tk.Text(win , fg = 'green' , width = '40' , height = '9' , font = '16')
+        self.correct_text.place( x = 30 , y = 240)
 
-        correct_text = tk.Text(win , fg = 'green' , width = '40' , height = '9' , font = '16')
-
-        correct_text.place( x = 30 , y = 240)
-
-        incorrect_text = tk.Text(win , fg = 'red' , width = '40' , height = '9' , font = '16')
-        incorrect_text.place ( x = 410 , y = 240)
+        self.incorrect_text = tk.Text(win , fg = 'red' , width = '40' , height = '9' , font = '16')
+        self.incorrect_text.place ( x = 410 , y = 240)
     
-    
+    def _get_user_answer(self,eff,input_entry):
+        user_answer = input_entry.get()
+        if(user_answer == self.answer):
+            print('y')
+            self.correct_text.insert(tk.INSERT,user_answer)
+        else:
+            print('n')
+            self.incorrect_text.insert(tk.INSERT,user_answer)
+        
     def _change_definition(self):
         index = random.randint(0,(self.msg_len-1))
         self.message.set(self.vocabularies[index][1])
+        self.answer = self.vocabularies[index][0]
     
     def _loadfile(self):
         with open('gre_word_2.txt') as f:
-            rtn_data =[]
             for line in f:
                 split_data = line.split('\t')
-                rtn_data.append(split_data)
+                self.vocabularies.append(split_data)
                 self.msg_len += 1
-        return rtn_data
-        
+        self._change_definition()
+         
     def _exit(self):
         sys.exit(0)
         
