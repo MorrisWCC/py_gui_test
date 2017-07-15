@@ -11,6 +11,8 @@ class Gui:
         self.win=tk.Tk()
         self.message = tk.StringVar()
         self.message.set('')
+        self.tmp_str = ''
+        self.answer_list = ''
         self.vocabularies = []
         self.correct_answer = tk.StringVar()
         self.correct_answer.set('')
@@ -75,10 +77,10 @@ class Gui:
 
         #show correctness
         
-        self.show_user_answer = tk.Label(win , width = '40' , height = '9' , font = '16' , textvariable = self.user_answer)
+        self.show_user_answer = tk.Label(win , width = '40' , height = '9' , font = '16' , textvariable = self.user_answer , anchor = 'n')
         self.show_user_answer.place( x = 30 , y = 240)
-
-        self.show_correct_answer = tk.Label(win , fg = 'green' , width = '40' , height = '9' , font = '16' , textvariable = self.correct_answer)
+ 
+        self.show_correct_answer = tk.Label(win , fg = 'green' , width = '40' , height = '9' , font = '16' , textvariable = self.correct_answer , anchor = 'n')
         self.show_correct_answer.place ( x = 410 , y = 240)
     
     def _get_new_win(self):
@@ -91,15 +93,16 @@ class Gui:
         if(self.start_flag == False):
             new_win = self._get_new_win()
             start_label = tk.Label (new_win, text = "You haven't load files yet" , font = 'Courier 35 bold' ).pack()           
-     
+        self.answer_list += self.answer+'\n'
+        self.tmp_str += input_entry.get() + '\n'
         if(self.answer == input_entry.get()):
             print('hi')
             self.show_user_answer['fg'] = 'green'
         else:
             self.show_user_answer['fg'] = 'red'
         
-        self.correct_answer.set(self.answer)
-        self.user_answer.set(input_entry.get())
+        self.correct_answer.set(self.answer_list)
+        self.user_answer.set(self.tmp_str)
         input_entry.delete(0,'end')
         self._change_definition()
 
@@ -112,7 +115,7 @@ class Gui:
 
         index = random.randint(0,(self.msg_len-1))
         self.message.set(self.vocabularies[index][1])
-        self.answer = self.vocabularies[index][0]
+        self.answer = self.vocabularies[index][0] 
         self.hint_variable.set('Hint : '+self.answer[0:2])
     
     def _loadfile(self):
