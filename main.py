@@ -21,6 +21,7 @@ class Gui:
         self.hint_variable = tk.StringVar()
         self.hint_variable.set('Hint : ')
         self._SetParameters(self.win)
+        self.record = {}
 
     def _SetParameters(self,win):
         #size title
@@ -67,7 +68,7 @@ class Gui:
         #button
 
         btn = tk.Button(win, text = "Start Test", command = self._loadfile,font = "bold" , width = "10" )
-        btn.place(x = 10,y = 0)
+        btn.place(x = 10,y = 10)
 
         next_btn = tk.Button(win, text = "Next", command = self._change_definition, font = "bold" , width = "4" , height = "1")
         next_btn.place(x = 400,y = 70)
@@ -82,6 +83,11 @@ class Gui:
  
         self.show_correct_answer = tk.Label(win , fg = 'green' , width = '40' , height = '9' , font = '16' , textvariable = self.correct_answer , anchor = 'n')
         self.show_correct_answer.place ( x = 410 , y = 240)
+        
+        #History record
+        
+        record = tk.Button(win , text = "此次答題情形", command = self._show_history , font ="標楷體" , width = "14" , height = "2")
+        record.place(x = 1050,y = 70)
     
     def _get_new_win(self):
         tmp_win = tk.Tk()
@@ -93,19 +99,55 @@ class Gui:
         if(self.start_flag == False):
             new_win = self._get_new_win()
             start_label = tk.Label (new_win, text = "You haven't load files yet" , font = 'Courier 35 bold' ).pack()           
-        self.answer_list += self.answer+'\n'
+        self. answer_list += self.answer+'\n'
         self.tmp_str += input_entry.get() + '\n'
+        tmp_input_answer = input_entry.get()
         if(self.answer == input_entry.get()):
-            print('hi')
             self.show_user_answer['fg'] = 'green'
         else:
             self.show_user_answer['fg'] = 'red'
         
         self.correct_answer.set(self.answer_list)
         self.user_answer.set(self.tmp_str)
+        self.record[self.answer] = [tmp_input_answer]
         input_entry.delete(0,'end')
         self._change_definition()
 
+    def _show_history(self):
+        record = tk.Tk()
+        record.title("Record!")
+        # set size 
+        record.minsize(1000,450)
+        record.maxsize(1400,850)
+        record.geometry("900x350")
+        
+        Your_answer = tk.Label(record,text="Your Answer",font ="標楷體")
+        Your_answer.place(x = 200 , y = 20)
+        Your_answer_list = tk.Label(record , width = '40' , height = '9' , font = '16' , text = self.user_answer.get() , anchor = 'n')
+        Your_answer_list.place( x = 50 , y = 50)
+        
+        Correct_answer = tk.Label(record,text="Correct Answer",font ="標楷體")
+        Correct_answer.place(x = 500 , y = 20)
+        correct_answer_List = tk.Label(record , fg = 'green' , width = '40' , height = '9' , font = '16' , text = self.correct_answer.get() , anchor = 'n')
+        correct_answer_List.place( x = 350 , y = 50)
+        
+        
+        Accuracy = tk.Label(record,text="Accuracy",font ="標楷體 22")
+        Accuracy.place( x = 850 , y = 5)
+        Accuracy_str = self._calculate_accuracy()
+        Accuracy_number = tk.Label(record,text=Accuracy_str,font ="標楷體 22",)
+        Accuracy_number.place( x = 850 , y = 50) 
+        self.center(record)
+        record.mainloop()
+        
+    def _calculate_accuracy(self):
+        cnt = 0
+        crt = 0
+        for key , value in self.record.items():
+            cnt+=1
+            if(key == value):
+                crt+=1
+        return str(crt)+"/"+str(cnt)
         
     def _change_definition(self):
         
